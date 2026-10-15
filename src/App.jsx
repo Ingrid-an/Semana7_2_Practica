@@ -34,8 +34,6 @@ function Dashboard() {
   // Hook personalizado: las tareas se guardan en localStorage
   const [savedTasks, setSavedTasks] = useLocalStorage('dashboard-tareas', SEED_TASKS)
 
-  // useReducer: estado complejo (items + filter + sort) con transiciones claras.
-  // initTasks arma el estado inicial con lo guardado (solo en el primer render).
   const [state, dispatch] = useReducer(tasksReducer, savedTasks, initTasks)
   const { items, filter, sort } = state
 
@@ -44,13 +42,19 @@ function Dashboard() {
     setSavedTasks(items)
   }, [items, setSavedTasks])
 
-  // Handlers estables (dispatch nunca cambia), se pasan como props a TaskList
+  useEffect(() => {
+    console.log("Efecto montado (activo)");
+    
+    return () => {
+      console.log("Cleanup ejecutado: componente desmontado con éxito");
+    };
+  }, []);
+
+ 
   const handleAdd = useCallback((task) => dispatch({ type: ACTIONS.ADD, payload: task }), [])
   const handleRemove = useCallback((id) => dispatch({ type: ACTIONS.REMOVE, payload: id }), [])
   const handleToggle = useCallback((id) => dispatch({ type: ACTIONS.TOGGLE, payload: id }), [])
 
-  // useMemo: métricas derivadas para KPIs y gráficos. Solo se recalculan si cambian
-  // los items; cambiar filtro, orden o tema NO las recalcula.
   const stats = useMemo(() => {
     const total = items.length
     const done = items.filter((t) => t.completed).length
@@ -194,3 +198,4 @@ export default function App() {
     </ThemeProvider>
   )
 }
+
